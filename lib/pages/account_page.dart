@@ -3,7 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:lost_found_app/components/avatar.dart';
 import 'package:lost_found_app/main.dart';
 import 'package:lost_found_app/pages/login_page.dart';
-import 'package:line_icons/line_icons.dart'; // Ensure this is imported
+import 'package:line_icons/line_icons.dart';
 
 class AccountPage extends StatefulWidget {
   const AccountPage({super.key});

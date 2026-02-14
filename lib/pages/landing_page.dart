@@ -3,6 +3,7 @@ import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:lost_found_app/pages/report_page.dart';
 import 'package:lost_found_app/pages/account_page.dart';
+import 'package:lost_found_app/pages/my_reports_page.dart';
 class Landing_Page extends StatefulWidget {
   @override
   _Landing_PageState createState() => _Landing_PageState();
@@ -18,10 +19,7 @@ class _Landing_PageState extends State<Landing_Page> {
       style: optionStyle,
     ),
     const ReportPage(),
-    Text(
-      'Search',
-      style: optionStyle,
-    ),
+    const MyReportsPage(),
     const AccountPage()
   ];
 
