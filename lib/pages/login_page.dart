@@ -1,10 +1,9 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:lost_found_app/main.dart';
 import 'package:lost_found_app/pages/account_page.dart';
-
+import 'package:lost_found_app/pages/landing_page.dart';
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -54,7 +53,7 @@ class _LoginPageState extends State<LoginPage> {
 
       if (response.session != null && mounted) {
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const AccountPage()),
+          MaterialPageRoute(builder: (context) => Landing_Page()),
         );
       }
     } on AuthException catch (error) {
