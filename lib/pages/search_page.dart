@@ -12,6 +12,7 @@ class _SearchPageState extends State<SearchPage> {
   final TextEditingController _searchController = TextEditingController();
   List<Map<String, dynamic>> _allResults = []; // Preloaded items
   List<Map<String, dynamic>> _filteredResults = []; // Items shown to user
+  //LMAOOOOOOO
   bool _isLoading = true;
 
   @override
