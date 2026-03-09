@@ -1,61 +1,74 @@
+
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:line_icons/line_icons.dart';
+
 import 'package:lost_found_app/pages/report_page.dart';
 import 'package:lost_found_app/pages/account_page.dart';
 import 'package:lost_found_app/pages/my_reports_page.dart';
 import 'package:lost_found_app/pages/search_page.dart';
+
 class Landing_Page extends StatefulWidget {
+  const Landing_Page({Key? key}) : super(key: key);
+
   @override
-  _Landing_PageState createState() => _Landing_PageState();
+  State<Landing_Page> createState() => _Landing_PageState();
 }
 
 class _Landing_PageState extends State<Landing_Page> {
   int _selectedIndex = 0;
-  static const TextStyle optionStyle =
-      TextStyle(fontSize: 30, fontWeight: FontWeight.w600);
-  static const List<Widget> _widgetOptions = <Widget>[
-    const SearchPage(),
-    const ReportPage(),
-    const MyReportsPage(),
-    const AccountPage()
+
+  final List<Widget> _pages = const [
+    SearchPage(),
+    ReportPage(),
+    MyReportsPage(),
+    AccountPage(),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        elevation: 20,
-        title: const Text('Lost&Found'),
-      ),
-      body: Center(
-        child: _widgetOptions.elementAt(_selectedIndex),
-      ),
+
+      body: _pages[_selectedIndex],
+
       bottomNavigationBar: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           color: Colors.white,
           boxShadow: [
             BoxShadow(
               blurRadius: 20,
-              color: Colors.black,
+              color: Colors.black12,
             )
           ],
         ),
+
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 8),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 15,
+              vertical: 8,
+            ),
+
             child: GNav(
-              rippleColor: Colors.grey[300]!,
-              hoverColor: Colors.grey[100]!,
+              rippleColor: Colors.grey,
+              hoverColor: Colors.grey,
               gap: 8,
               activeColor: Colors.black,
               iconSize: 24,
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              duration: Duration(milliseconds: 400),
-              tabBackgroundColor: Colors.grey[100]!,
+
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 12,
+              ),
+
+              duration: const Duration(milliseconds: 400),
+
+              tabBackgroundColor: Colors.grey,
+
               color: Colors.black,
-              tabs: [
+
+              tabs: const [
                 GButton(
                   icon: LineIcons.search,
                   text: 'Search',
@@ -68,13 +81,14 @@ class _Landing_PageState extends State<Landing_Page> {
                   icon: LineIcons.folderOpen,
                   text: 'Reported',
                 ),
-                
                 GButton(
                   icon: LineIcons.userCircle,
                   text: 'Profile',
                 ),
               ],
+
               selectedIndex: _selectedIndex,
+
               onTabChange: (index) {
                 setState(() {
                   _selectedIndex = index;

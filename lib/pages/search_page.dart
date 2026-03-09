@@ -1,6 +1,10 @@
+
 import 'package:flutter/material.dart';
 import 'package:lost_found_app/main.dart';
 import 'package:lost_found_app/pages/item_search_page.dart';
+import 'package:lost_found_app/pages/chat_list_page.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
 
@@ -9,23 +13,29 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
+
   final TextEditingController _searchController = TextEditingController();
-  List<Map<String, dynamic>> _allResults = []; // Preloaded items
-  List<Map<String, dynamic>> _filteredResults = []; // Items shown to user
-  //LMAOOOOOOO
+
+  List<Map<String, dynamic>> _allResults = [];
+  List<Map<String, dynamic>> _filteredResults = [];
+
   bool _isLoading = true;
+
+  int _unreadCount = 0;
 
   @override
   void initState() {
     super.initState();
     _fetchItems();
+    _getUnreadMessages();
+    _listenForNewMessages();
   }
 
-  // 1. Preload results from Supabase
+  // Load items
   Future<void> _fetchItems() async {
     try {
       final data = await supabase
-          .from('items') // Replace with your actual table name
+          .from('items')
           .select()
           .order('created_at', ascending: false);
 
@@ -39,9 +49,10 @@ class _SearchPageState extends State<SearchPage> {
     }
   }
 
-  // 2. Filter logic
+  // Filter items
   void _runFilter(String enteredKeyword) {
     List<Map<String, dynamic>> results = [];
+
     if (enteredKeyword.isEmpty) {
       results = _allResults;
     } else {
@@ -58,24 +69,122 @@ class _SearchPageState extends State<SearchPage> {
     });
   }
 
+  // Get unread messages
+  Future<void> _getUnreadMessages() async {
+
+    final userId = supabase.auth.currentUser!.id;
+
+    final data = await supabase
+        .from('messages')
+        .select()
+        .eq('receiver_id', userId);
+
+    setState(() {
+      _unreadCount = data.length;
+    });
+  }
+
+  // Listen realtime
+  void _listenForNewMessages() {
+
+    final userId = supabase.auth.currentUser!.id;
+
+    supabase.channel('public:messages')
+
+      .onPostgresChanges(
+        event: PostgresChangeEvent.insert,
+        schema: 'public',
+        table: 'messages',
+        callback: (payload) {
+
+          if (payload.newRecord['receiver_id'] == userId) {
+
+            setState(() {
+              _unreadCount++;
+            });
+
+          }
+
+        },
+      ).subscribe();
+  }
+
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Search Items')),
+
+      appBar: AppBar(
+
+        title: const Text('Search Items'),
+
+        actions: [
+
+          Stack(
+            children: [
+
+              IconButton(
+                icon: const Icon(Icons.chat_bubble_outline),
+
+                onPressed: () {
+
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ChatListPage(),
+                    ),
+                  );
+
+                },
+              ),
+
+              if (_unreadCount > 0)
+                Positioned(
+                  right: 8,
+                  top: 8,
+
+                  child: Container(
+                    padding: const EdgeInsets.all(5),
+
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+
+                    child: Text(
+                      '$_unreadCount',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+
+        ],
+      ),
+
       body: Column(
         children: [
-          // Search Bar
+
           Padding(
             padding: const EdgeInsets.all(12.0),
+
             child: TextField(
               controller: _searchController,
               onChanged: (value) => _runFilter(value),
+
               decoration: InputDecoration(
                 labelText: 'Search by item name...',
                 prefixIcon: const Icon(Icons.search),
+
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
+
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
                         icon: const Icon(Icons.clear),
@@ -89,8 +198,6 @@ class _SearchPageState extends State<SearchPage> {
             ),
           ),
 
-          // Results List
-          
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
@@ -98,21 +205,27 @@ class _SearchPageState extends State<SearchPage> {
                     ? ListView.builder(
                         itemCount: _filteredResults.length,
                         itemBuilder: (context, index) {
+
                           final item = _filteredResults[index];
+
                           return ListTile(
                             leading: const Icon(Icons.inventory_2),
                             title: Text(item['name'] ?? 'Unknown Item'),
                             subtitle: Text(item['description'] ?? ''),
                             trailing: const Icon(Icons.chevron_right),
+
                             onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => ItemDetailsPage(item: item),
-                                      ),
-                                    );
-                                  },
-                        );
+
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      ItemDetailsPage(item: item),
+                                ),
+                              );
+
+                            },
+                          );
                         },
                       )
                     : const Center(
