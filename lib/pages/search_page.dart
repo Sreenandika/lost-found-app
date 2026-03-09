@@ -90,6 +90,7 @@ class _SearchPageState extends State<SearchPage> {
           ),
 
           // Results List
+          
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
