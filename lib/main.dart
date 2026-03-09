@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:lost_found_app/pages/landing_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:lost_found_app/pages/login_page.dart';
-
+    
 Future<void> main() async {
   await Supabase.initialize(
-     url: 'https://kkpmzruqsvcjxuaksqci.supabase.co',
+     url: 'https://lost-and-found.jiobase.com',
     anonKey: 'sb_publishable_tJWSVb1QEL0QKplUsVCZyQ_kMdWG1mR',
   );
   runApp(const MyApp());
