@@ -12,8 +12,9 @@ class ChatPage extends StatefulWidget {
 
 class _ChatPageState extends State<ChatPage> {
 
-  final SupabaseClient supabase = Supabase.instance.client;
+  final supabase = Supabase.instance.client;
   final TextEditingController controller = TextEditingController();
+  final ScrollController scrollController = ScrollController();
 
   List messages = [];
 
@@ -27,44 +28,40 @@ class _ChatPageState extends State<ChatPage> {
 
     otherUser = widget.item['user_id'];
 
-    loadMessages();
+    markMessagesRead();
     subscribeMessages();
   }
 
-  Future loadMessages() async {
+  Future markMessagesRead() async {
 
-    final data = await supabase
+    await supabase
         .from('messages')
-        .select()
+        .update({'is_read': true})
         .eq('item_id', widget.item['id'])
-        .order('created_at');
-
-    setState(() {
-      messages = data;
-    });
+        .eq('receiver_id', currentUser);
   }
 
   void subscribeMessages() {
 
-    supabase.channel('chat_${widget.item['id']}')
+    supabase
+        .from('messages')
+        .stream(primaryKey: ['id'])
+        .eq('item_id', widget.item['id'])
+        .order('created_at', ascending: true)
+        .listen((data) {
 
-      .onPostgresChanges(
-        event: PostgresChangeEvent.insert,
-        schema: 'public',
-        table: 'messages',
-        filter: PostgresChangeFilter(
-          type: PostgresChangeFilterType.eq,
-          column: 'item_id',
-          value: widget.item['id'],
-        ),
-        callback: (payload) {
+      setState(() {
+        messages = data;
+      });
 
-          setState(() {
-            messages.add(payload.newRecord);
-          });
-
-        },
-      ).subscribe();
+      Future.delayed(const Duration(milliseconds: 200), () {
+        if (scrollController.hasClients) {
+          scrollController.jumpTo(
+            scrollController.position.maxScrollExtent,
+          );
+        }
+      });
+    });
   }
 
   Future sendMessage() async {
@@ -76,6 +73,7 @@ class _ChatPageState extends State<ChatPage> {
       'sender_id': currentUser,
       'receiver_id': otherUser,
       'message': controller.text.trim(),
+      'is_read': false
     });
 
     controller.clear();
@@ -85,6 +83,8 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
 
     return Scaffold(
+
+      resizeToAvoidBottomInset: true,
 
       appBar: AppBar(
         title: Text(widget.item['name'] ?? "Chat"),
@@ -96,8 +96,13 @@ class _ChatPageState extends State<ChatPage> {
 
           Expanded(
             child: ListView.builder(
-              padding: const EdgeInsets.all(12),
+
+              controller: scrollController,
+
+              padding: const EdgeInsets.all(10),
+
               itemCount: messages.length,
+
               itemBuilder: (context, index) {
 
                 final msg = messages[index];
@@ -109,7 +114,9 @@ class _ChatPageState extends State<ChatPage> {
                       isMe ? Alignment.centerRight : Alignment.centerLeft,
 
                   child: Container(
-                    margin: const EdgeInsets.symmetric(vertical: 6),
+
+                    margin: const EdgeInsets.symmetric(vertical: 5),
+
                     padding: const EdgeInsets.all(12),
 
                     decoration: BoxDecoration(
@@ -129,30 +136,32 @@ class _ChatPageState extends State<ChatPage> {
             ),
           ),
 
-          Container(
-            padding: const EdgeInsets.all(10),
+          SafeArea(
+            child: Container(
+              padding: const EdgeInsets.all(10),
 
-            child: Row(
-              children: [
+              child: Row(
+                children: [
 
-                Expanded(
-                  child: TextField(
-                    controller: controller,
-                    decoration: const InputDecoration(
-                      hintText: "Type message...",
-                      border: OutlineInputBorder(),
+                  Expanded(
+                    child: TextField(
+                      controller: controller,
+                      decoration: const InputDecoration(
+                        hintText: "Type message...",
+                        border: OutlineInputBorder(),
+                      ),
                     ),
                   ),
-                ),
 
-                const SizedBox(width: 10),
+                  const SizedBox(width: 8),
 
-                IconButton(
-                  icon: const Icon(Icons.send),
-                  onPressed: sendMessage,
-                )
+                  IconButton(
+                    icon: const Icon(Icons.send),
+                    onPressed: sendMessage,
+                  )
 
-              ],
+                ],
+              ),
             ),
           )
         ],

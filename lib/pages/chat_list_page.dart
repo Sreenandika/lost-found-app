@@ -12,7 +12,9 @@ class ChatListPage extends StatefulWidget {
 class _ChatListPageState extends State<ChatListPage> {
 
   final supabase = Supabase.instance.client;
+
   List chats = [];
+  Map unreadCounts = {};
 
   @override
   void initState() {
@@ -24,13 +26,31 @@ class _ChatListPageState extends State<ChatListPage> {
 
     final userId = supabase.auth.currentUser!.id;
 
-    final data = await supabase
+    final messages = await supabase
         .from('messages')
-        .select('item_id, items(*)')
-        .or('sender_id.eq.$userId,receiver_id.eq.$userId');
+        .select('*, items(*)')
+        .or('sender_id.eq.$userId,receiver_id.eq.$userId')
+        .order('created_at', ascending: false);
+
+    Map latestChats = {};
+    Map unread = {};
+
+    for (var msg in messages) {
+
+      final itemId = msg['item_id'];
+
+      if (!latestChats.containsKey(itemId)) {
+        latestChats[itemId] = msg;
+      }
+
+      if (msg['receiver_id'] == userId && msg['is_read'] == false) {
+        unread[itemId] = (unread[itemId] ?? 0) + 1;
+      }
+    }
 
     setState(() {
-      chats = data;
+      chats = latestChats.values.toList();
+      unreadCounts = unread;
     });
   }
 
@@ -38,18 +58,42 @@ class _ChatListPageState extends State<ChatListPage> {
   Widget build(BuildContext context) {
 
     return Scaffold(
+
       appBar: AppBar(title: const Text("Messages")),
 
       body: ListView.builder(
+
         itemCount: chats.length,
 
         itemBuilder: (context, index) {
 
-          final item = chats[index]['items'];
+          final chat = chats[index];
+
+          final item = chat['items'];
+
+          final itemId = chat['item_id'];
+
+          final unread = unreadCounts[itemId] ?? 0;
 
           return ListTile(
+
             title: Text(item['name']),
-            subtitle: const Text("Open chat"),
+
+            subtitle: Text(chat['message'] ?? ""),
+
+            trailing: unread > 0
+                ? CircleAvatar(
+                    radius: 12,
+                    backgroundColor: Colors.red,
+                    child: Text(
+                      unread.toString(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                      ),
+                    ),
+                  )
+                : null,
 
             onTap: () {
 
@@ -58,7 +102,9 @@ class _ChatListPageState extends State<ChatListPage> {
                 MaterialPageRoute(
                   builder: (_) => ChatPage(item: item),
                 ),
-              );
+              ).then((_) {
+                loadChats();
+              });
 
             },
           );
