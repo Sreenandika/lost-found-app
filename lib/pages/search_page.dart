@@ -35,7 +35,7 @@ class _SearchPageState extends State<SearchPage> {
   Future<void> _fetchItems() async {
     try {
       final data = await supabase
-          .from('items')
+          .from('items_details_view')
           .select()
           .order('created_at', ascending: false);
 
