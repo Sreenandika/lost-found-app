@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:lost_found_app/main.dart';
 import 'package:lost_found_app/pages/item_search_page.dart';
@@ -13,7 +12,6 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
-
   final TextEditingController _searchController = TextEditingController();
 
   List<Map<String, dynamic>> _allResults = [];
@@ -57,10 +55,11 @@ class _SearchPageState extends State<SearchPage> {
       results = _allResults;
     } else {
       results = _allResults
-          .where((item) => item['name']
-              .toString()
-              .toLowerCase()
-              .contains(enteredKeyword.toLowerCase()))
+          .where(
+            (item) => item['name'].toString().toLowerCase().contains(
+              enteredKeyword.toLowerCase(),
+            ),
+          )
           .toList();
     }
 
@@ -71,7 +70,6 @@ class _SearchPageState extends State<SearchPage> {
 
   // Get unread messages
   Future<void> _getUnreadMessages() async {
-
     final userId = supabase.auth.currentUser!.id;
 
     final data = await supabase
@@ -86,55 +84,42 @@ class _SearchPageState extends State<SearchPage> {
 
   // Listen realtime
   void _listenForNewMessages() {
-
     final userId = supabase.auth.currentUser!.id;
 
-    supabase.channel('public:messages')
-
-      .onPostgresChanges(
-        event: PostgresChangeEvent.insert,
-        schema: 'public',
-        table: 'messages',
-        callback: (payload) {
-
-          if (payload.newRecord['receiver_id'] == userId) {
-
-            setState(() {
-              _unreadCount++;
-            });
-
-          }
-
-        },
-      ).subscribe();
+    supabase
+        .channel('public:messages')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.insert,
+          schema: 'public',
+          table: 'messages',
+          callback: (payload) {
+            if (payload.newRecord['receiver_id'] == userId) {
+              setState(() {
+                _unreadCount++;
+              });
+            }
+          },
+        )
+        .subscribe();
   }
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
-
       appBar: AppBar(
-
         title: const Text('Search Items'),
 
         actions: [
-
           Stack(
             children: [
-
               IconButton(
                 icon: const Icon(Icons.chat_bubble_outline),
 
                 onPressed: () {
-
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (_) => const ChatListPage(),
-                    ),
+                    MaterialPageRoute(builder: (_) => const ChatListPage()),
                   );
-
                 },
               ),
 
@@ -163,13 +148,11 @@ class _SearchPageState extends State<SearchPage> {
                 ),
             ],
           ),
-
         ],
       ),
 
       body: Column(
         children: [
-
           Padding(
             padding: const EdgeInsets.all(12.0),
 
@@ -202,35 +185,29 @@ class _SearchPageState extends State<SearchPage> {
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : _filteredResults.isNotEmpty
-                    ? ListView.builder(
-                        itemCount: _filteredResults.length,
-                        itemBuilder: (context, index) {
+                ? ListView.builder(
+                    itemCount: _filteredResults.length,
+                    itemBuilder: (context, index) {
+                      final item = _filteredResults[index];
 
-                          final item = _filteredResults[index];
+                      return ListTile(
+                        leading: const Icon(Icons.inventory_2),
+                        title: Text(item['name'] ?? 'Unknown Item'),
+                        subtitle: Text(item['description'] ?? ''),
+                        trailing: const Icon(Icons.chevron_right),
 
-                          return ListTile(
-                            leading: const Icon(Icons.inventory_2),
-                            title: Text(item['name'] ?? 'Unknown Item'),
-                            subtitle: Text(item['description'] ?? ''),
-                            trailing: const Icon(Icons.chevron_right),
-
-                            onTap: () {
-
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      ItemDetailsPage(item: item),
-                                ),
-                              );
-
-                            },
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ItemDetailsPage(item: item),
+                            ),
                           );
                         },
-                      )
-                    : const Center(
-                        child: Text('No items found'),
-                      ),
+                      );
+                    },
+                  )
+                : const Center(child: Text('No items found')),
           ),
         ],
       ),

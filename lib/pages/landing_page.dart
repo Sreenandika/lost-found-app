@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:line_icons/line_icons.dart';
@@ -35,20 +34,12 @@ class _Landing_PageState extends State<Landing_Page> {
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
           color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              blurRadius: 20,
-              color: Colors.black12,
-            )
-          ],
+          boxShadow: [BoxShadow(blurRadius: 20, color: Colors.black12)],
         ),
 
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 15,
-              vertical: 8,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
 
             child: GNav(
               rippleColor: Colors.grey,
@@ -57,10 +48,7 @@ class _Landing_PageState extends State<Landing_Page> {
               activeColor: Colors.black,
               iconSize: 24,
 
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 12,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
 
               duration: const Duration(milliseconds: 400),
 
@@ -69,22 +57,10 @@ class _Landing_PageState extends State<Landing_Page> {
               color: Colors.black,
 
               tabs: const [
-                GButton(
-                  icon: LineIcons.search,
-                  text: 'Search',
-                ),
-                GButton(
-                  icon: LineIcons.plus,
-                  text: 'Report',
-                ),
-                GButton(
-                  icon: LineIcons.folderOpen,
-                  text: 'Reported',
-                ),
-                GButton(
-                  icon: LineIcons.userCircle,
-                  text: 'Profile',
-                ),
+                GButton(icon: LineIcons.search, text: 'Search'),
+                GButton(icon: LineIcons.plus, text: 'Report'),
+                GButton(icon: LineIcons.folderOpen, text: 'Reported'),
+                GButton(icon: LineIcons.userCircle, text: 'Profile'),
               ],
 
               selectedIndex: _selectedIndex,

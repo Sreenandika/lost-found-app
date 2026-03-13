@@ -11,7 +11,6 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
-
   final supabase = Supabase.instance.client;
   final TextEditingController controller = TextEditingController();
   final ScrollController scrollController = ScrollController();
@@ -33,7 +32,6 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Future markMessagesRead() async {
-
     await supabase
         .from('messages')
         .update({'is_read': true})
@@ -42,30 +40,27 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void subscribeMessages() {
-
     supabase
         .from('messages')
         .stream(primaryKey: ['id'])
         .eq('item_id', widget.item['id'])
         .order('created_at', ascending: true)
         .listen((data) {
+          setState(() {
+            messages = data;
+          });
 
-      setState(() {
-        messages = data;
-      });
-
-      Future.delayed(const Duration(milliseconds: 200), () {
-        if (scrollController.hasClients) {
-          scrollController.jumpTo(
-            scrollController.position.maxScrollExtent,
-          );
-        }
-      });
-    });
+          Future.delayed(const Duration(milliseconds: 200), () {
+            if (scrollController.hasClients) {
+              scrollController.jumpTo(
+                scrollController.position.maxScrollExtent,
+              );
+            }
+          });
+        });
   }
 
   Future sendMessage() async {
-
     if (controller.text.trim().isEmpty) return;
 
     await supabase.from('messages').insert({
@@ -73,7 +68,7 @@ class _ChatPageState extends State<ChatPage> {
       'sender_id': currentUser,
       'receiver_id': otherUser,
       'message': controller.text.trim(),
-      'is_read': false
+      'is_read': false,
     });
 
     controller.clear();
@@ -81,22 +76,15 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
-
       resizeToAvoidBottomInset: true,
 
-      appBar: AppBar(
-        title: Text(widget.item['name'] ?? "Chat"),
-      ),
+      appBar: AppBar(title: Text(widget.item['name'] ?? "Chat")),
 
       body: Column(
-
         children: [
-
           Expanded(
             child: ListView.builder(
-
               controller: scrollController,
 
               padding: const EdgeInsets.all(10),
@@ -104,17 +92,16 @@ class _ChatPageState extends State<ChatPage> {
               itemCount: messages.length,
 
               itemBuilder: (context, index) {
-
                 final msg = messages[index];
 
                 final isMe = msg['sender_id'] == currentUser;
 
                 return Align(
-                  alignment:
-                      isMe ? Alignment.centerRight : Alignment.centerLeft,
+                  alignment: isMe
+                      ? Alignment.centerRight
+                      : Alignment.centerLeft,
 
                   child: Container(
-
                     margin: const EdgeInsets.symmetric(vertical: 5),
 
                     padding: const EdgeInsets.all(12),
@@ -142,7 +129,6 @@ class _ChatPageState extends State<ChatPage> {
 
               child: Row(
                 children: [
-
                   Expanded(
                     child: TextField(
                       controller: controller,
@@ -158,12 +144,11 @@ class _ChatPageState extends State<ChatPage> {
                   IconButton(
                     icon: const Icon(Icons.send),
                     onPressed: sendMessage,
-                  )
-
+                  ),
                 ],
               ),
             ),
-          )
+          ),
         ],
       ),
     );

@@ -38,8 +38,11 @@ class _AccountPageState extends State<AccountPage> {
     try {
       final userId = supabase.auth.currentSession!.user.id;
 
-      final data =
-          await supabase.from('profiles').select().eq('id', userId).single();
+      final data = await supabase
+          .from('profiles')
+          .select()
+          .eq('id', userId)
+          .single();
 
       _usernameController.text = (data['username'] ?? '') as String;
       _websiteController.text = (data['website'] ?? '') as String;
@@ -80,9 +83,9 @@ class _AccountPageState extends State<AccountPage> {
       await supabase.auth.signOut();
 
       if (mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const LoginPage()),
-        );
+        Navigator.of(
+          context,
+        ).pushReplacement(MaterialPageRoute(builder: (_) => const LoginPage()));
       }
     } catch (_) {
       if (mounted) context.showSnackBar('Error signing out', isError: true);
@@ -93,9 +96,10 @@ class _AccountPageState extends State<AccountPage> {
     try {
       final userId = supabase.auth.currentUser!.id;
 
-      await supabase
-          .from('profiles')
-          .upsert({'id': userId, 'avatar_url': imageUrl});
+      await supabase.from('profiles').upsert({
+        'id': userId,
+        'avatar_url': imageUrl,
+      });
 
       setState(() => _avatarUrl = imageUrl);
     } catch (_) {
@@ -116,8 +120,7 @@ class _AccountPageState extends State<AccountPage> {
       ),
 
       body: _loading
-          ? const Center(
-              child: CircularProgressIndicator(color: Colors.black))
+          ? const Center(child: CircularProgressIndicator(color: Colors.black))
           : SingleChildScrollView(
               padding: const EdgeInsets.all(24),
 
@@ -125,11 +128,9 @@ class _AccountPageState extends State<AccountPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
 
                 children: [
-
                   const Text(
                     "Profile Settings",
-                    style: TextStyle(
-                        fontSize: 28, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                   ),
 
                   const SizedBox(height: 8),
@@ -142,10 +143,7 @@ class _AccountPageState extends State<AccountPage> {
                   const SizedBox(height: 32),
 
                   Center(
-                    child: Avatar(
-                      imageUrl: _avatarUrl,
-                      onUpload: _onUpload,
-                    ),
+                    child: Avatar(imageUrl: _avatarUrl, onUpload: _onUpload),
                   ),
 
                   const SizedBox(height: 40),
@@ -180,13 +178,12 @@ class _AccountPageState extends State<AccountPage> {
                       ),
 
                       child: Text(
-                        _loading
-                            ? 'Saving Changes...'
-                            : 'Update Profile',
+                        _loading ? 'Saving Changes...' : 'Update Profile',
 
                         style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold),
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
@@ -199,9 +196,7 @@ class _AccountPageState extends State<AccountPage> {
 
                   const Text(
                     "Messages",
-                    style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                   ),
 
                   const SizedBox(height: 10),
@@ -215,9 +210,7 @@ class _AccountPageState extends State<AccountPage> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                          builder: (_) => const ChatListPage(),
-                        ),
+                        MaterialPageRoute(builder: (_) => const ChatListPage()),
                       );
                     },
                   ),
@@ -236,8 +229,7 @@ class _AccountPageState extends State<AccountPage> {
 
                       style: TextButton.styleFrom(
                         foregroundColor: Colors.redAccent,
-                        padding:
-                            const EdgeInsets.symmetric(vertical: 15),
+                        padding: const EdgeInsets.symmetric(vertical: 15),
                       ),
 
                       child: const Text(
@@ -258,9 +250,7 @@ class _AccountPageState extends State<AccountPage> {
       prefixIcon: Icon(icon, color: Colors.black54),
       labelStyle: const TextStyle(color: Colors.black54),
 
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
 
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),

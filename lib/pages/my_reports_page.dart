@@ -22,50 +22,50 @@ class _MyReportsPageState extends State<MyReportsPage> {
 
   /// The corrected fetch logic
   Future<void> _fetchMyReports() async {
-  if (!mounted) return;
-  setState(() => _isLoading = true);
-  
-  try {
-    final user = supabase.auth.currentUser;
-    if (user == null) {
-      print("DEBUG: No user logged in");
-      return;
-    }
+    if (!mounted) return;
+    setState(() => _isLoading = true);
 
-    print("DEBUG: Fetching for User ID: ${user.id} with Filter: $_filter");
+    try {
+      final user = supabase.auth.currentUser;
+      if (user == null) {
+        print("DEBUG: No user logged in");
+        return;
+      }
 
-    // Initialize the query
-    var query = supabase.from('items').select();
+      print("DEBUG: Fetching for User ID: ${user.id} with Filter: $_filter");
 
-    // Apply User Filter
-    query = query.eq('user_id', user.id);
+      // Initialize the query
+      var query = supabase.from('items').select();
 
-    // Apply Type Filter ONLY if not 'all'
-    if (_filter != 'all') {
-      // Use .ilike for case-insensitive matching just in case
-      query = query.ilike('type', _filter); 
-    }
+      // Apply User Filter
+      query = query.eq('user_id', user.id);
 
-    final data = await query.order('created_at', ascending: false);
-    
-    print("DEBUG: Data received: ${data.length} items");
+      // Apply Type Filter ONLY if not 'all'
+      if (_filter != 'all') {
+        // Use .ilike for case-insensitive matching just in case
+        query = query.ilike('type', _filter);
+      }
 
-    if (mounted) {
-      setState(() {
-        _reports = List<Map<String, dynamic>>.from(data);
-        _isLoading = false;
-      });
-    }
-  } catch (e) {
-    print("DEBUG: Catch error: $e");
-    if (mounted) {
-      setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: $e"), backgroundColor: Colors.red),
-      );
+      final data = await query.order('created_at', ascending: false);
+
+      print("DEBUG: Data received: ${data.length} items");
+
+      if (mounted) {
+        setState(() {
+          _reports = List<Map<String, dynamic>>.from(data);
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      print("DEBUG: Catch error: $e");
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error: $e"), backgroundColor: Colors.red),
+        );
+      }
     }
   }
-}
 
   /// Delete a report from Supabase
   Future<void> _deleteReport(String itemId) async {
@@ -74,13 +74,19 @@ class _MyReportsPageState extends State<MyReportsPage> {
       _fetchMyReports(); // Refresh the list
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Report deleted"), backgroundColor: Colors.black),
+          const SnackBar(
+            content: Text("Report deleted"),
+            backgroundColor: Colors.black,
+          ),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Delete failed"), backgroundColor: Colors.red),
+          const SnackBar(
+            content: Text("Delete failed"),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     }
@@ -91,8 +97,14 @@ class _MyReportsPageState extends State<MyReportsPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text("My Reports", 
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24, color: Colors.black)),
+        title: const Text(
+          "My Reports",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 24,
+            color: Colors.black,
+          ),
+        ),
         centerTitle: false,
         backgroundColor: Colors.white,
         elevation: 0,
@@ -101,7 +113,10 @@ class _MyReportsPageState extends State<MyReportsPage> {
         children: [
           // Filter Bar
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 12.0,
+            ),
             child: Row(
               children: [
                 _buildFilterChip('all', 'All Items'),
@@ -116,20 +131,22 @@ class _MyReportsPageState extends State<MyReportsPage> {
           // Main Content
           Expanded(
             child: _isLoading
-                ? const Center(child: CircularProgressIndicator(color: Colors.black))
+                ? const Center(
+                    child: CircularProgressIndicator(color: Colors.black),
+                  )
                 : _reports.isEmpty
-                    ? _buildEmptyState()
-                    : RefreshIndicator(
-                        onRefresh: _fetchMyReports,
-                        color: Colors.black,
-                        child: ListView.builder(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          itemCount: _reports.length,
-                          itemBuilder: (context, index) {
-                            return _buildReportCard(_reports[index]);
-                          },
-                        ),
-                      ),
+                ? _buildEmptyState()
+                : RefreshIndicator(
+                    onRefresh: _fetchMyReports,
+                    color: Colors.black,
+                    child: ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemCount: _reports.length,
+                      itemBuilder: (context, index) {
+                        return _buildReportCard(_reports[index]);
+                      },
+                    ),
+                  ),
           ),
         ],
       ),
@@ -168,7 +185,10 @@ class _MyReportsPageState extends State<MyReportsPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.black, width: 1.5), // High contrast border
+        border: Border.all(
+          color: Colors.black,
+          width: 1.5,
+        ), // High contrast border
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -176,7 +196,9 @@ class _MyReportsPageState extends State<MyReportsPage> {
           // Item Image Section
           if (item['image_url'] != null)
             ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(14),
+              ),
               child: Image.network(
                 item['image_url'],
                 height: 180,
@@ -185,7 +207,11 @@ class _MyReportsPageState extends State<MyReportsPage> {
                 errorBuilder: (context, error, stackTrace) => Container(
                   height: 180,
                   color: Colors.grey[100],
-                  child: const Icon(LineIcons.image, size: 40, color: Colors.grey),
+                  child: const Icon(
+                    LineIcons.image,
+                    size: 40,
+                    color: Colors.grey,
+                  ),
                 ),
               ),
             ),
@@ -200,30 +226,43 @@ class _MyReportsPageState extends State<MyReportsPage> {
                   children: [
                     Text(
                       item['name'] ?? 'Untitled',
-                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     // Status Badge
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: isLost ? Colors.red : Colors.green,
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
                         isLost ? "LOST" : "FOUND",
-                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 11,
+                        ),
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 10),
-                
+
                 // Details
                 Row(
                   children: [
                     const Icon(LineIcons.list, size: 16),
                     const SizedBox(width: 8),
-                    Text(item['category'] ?? 'Category', style: const TextStyle(fontWeight: FontWeight.w500)),
+                    Text(
+                      item['category'] ?? 'Category',
+                      style: const TextStyle(fontWeight: FontWeight.w500),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 6),
@@ -231,10 +270,13 @@ class _MyReportsPageState extends State<MyReportsPage> {
                   children: [
                     const Icon(LineIcons.mapMarker, size: 16),
                     const SizedBox(width: 8),
-                    Text(item['location'] ?? 'Location', style: const TextStyle(fontWeight: FontWeight.w500)),
+                    Text(
+                      item['location'] ?? 'Location',
+                      style: const TextStyle(fontWeight: FontWeight.w500),
+                    ),
                   ],
                 ),
-                
+
                 const Divider(height: 24, thickness: 1),
 
                 // Actions
@@ -244,7 +286,13 @@ class _MyReportsPageState extends State<MyReportsPage> {
                     TextButton.icon(
                       onPressed: () => _confirmDelete(item['id']),
                       icon: const Icon(LineIcons.trash, color: Colors.red),
-                      label: const Text("Remove", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                      label: const Text(
+                        "Remove",
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -261,15 +309,20 @@ class _MyReportsPageState extends State<MyReportsPage> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text("Delete Report?"),
-        content: const Text("Are you sure you want to remove this report permanently?"),
+        content: const Text(
+          "Are you sure you want to remove this report permanently?",
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancel")),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel"),
+          ),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
               _deleteReport(id);
-            }, 
-            child: const Text("Delete", style: TextStyle(color: Colors.red))
+            },
+            child: const Text("Delete", style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -285,7 +338,11 @@ class _MyReportsPageState extends State<MyReportsPage> {
           const SizedBox(height: 16),
           Text(
             "No $_filter items reported yet.",
-            style: const TextStyle(fontSize: 18, color: Colors.black54, fontWeight: FontWeight.w600),
+            style: const TextStyle(
+              fontSize: 18,
+              color: Colors.black54,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ],
       ),

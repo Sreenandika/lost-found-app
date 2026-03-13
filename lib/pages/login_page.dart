@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:lost_found_app/main.dart';
 import 'package:lost_found_app/pages/landing_page.dart';
+
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -20,7 +21,7 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> _sendOtp() async {
     try {
       setState(() => _isLoading = true);
-      
+
       await supabase.auth.signInWithOtp(
         email: _emailController.text.trim(),
         shouldCreateUser: true,
@@ -33,7 +34,8 @@ class _LoginPageState extends State<LoginPage> {
     } on AuthException catch (error) {
       if (mounted) context.showSnackBar(error.message, isError: true);
     } catch (error) {
-      if (mounted) context.showSnackBar('Unexpected error occurred', isError: true);
+      if (mounted)
+        context.showSnackBar('Unexpected error occurred', isError: true);
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -78,11 +80,13 @@ class _LoginPageState extends State<LoginPage> {
       body: ListView(
         padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
         children: [
-          Text(_otpSent 
-            ? 'Enter the 6-digit code sent to ${_emailController.text}' 
-            : 'Enter your email to receive a login code'),
+          Text(
+            _otpSent
+                ? 'Enter the 6-digit code sent to ${_emailController.text}'
+                : 'Enter your email to receive a login code',
+          ),
           const SizedBox(height: 18),
-          
+
           // Email Field (Disabled once OTP is sent)
           TextFormField(
             controller: _emailController,
@@ -96,26 +100,29 @@ class _LoginPageState extends State<LoginPage> {
             // OTP Field (Shows up after email is sent)
             TextFormField(
               controller: _otpController,
-              decoration: const InputDecoration(labelText: '6-Digit Code', hintText: '123456'),
+              decoration: const InputDecoration(
+                labelText: '6-Digit Code',
+                hintText: '123456',
+              ),
               keyboardType: TextInputType.number,
             ),
           ],
 
           const SizedBox(height: 18),
           ElevatedButton(
-            onPressed: _isLoading 
-              ? null 
-              : (_otpSent ? _verifyOtp : _sendOtp),
-            child: Text(_isLoading 
-              ? 'Processing...' 
-              : (_otpSent ? 'Verify Code' : 'Send Code')),
+            onPressed: _isLoading ? null : (_otpSent ? _verifyOtp : _sendOtp),
+            child: Text(
+              _isLoading
+                  ? 'Processing...'
+                  : (_otpSent ? 'Verify Code' : 'Send Code'),
+            ),
           ),
-          
+
           if (_otpSent)
             TextButton(
               onPressed: () => setState(() => _otpSent = false),
               child: const Text('Edit Email'),
-            )
+            ),
         ],
       ),
     );
