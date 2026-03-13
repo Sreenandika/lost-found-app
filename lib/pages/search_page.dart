@@ -70,38 +70,34 @@ class _SearchPageState extends State<SearchPage> {
 
   // Get unread messages
   Future<void> _getUnreadMessages() async {
-    final userId = supabase.auth.currentUser!.id;
+  final userId = supabase.auth.currentUser!.id;
 
-    final data = await supabase
-        .from('messages')
-        .select()
-        .eq('receiver_id', userId);
+  final data = await supabase
+      .from('messages')
+      .select()
+      .eq('receiver_id', userId)
+      .eq('is_read', false);   // Only unread
 
-    setState(() {
-      _unreadCount = data.length;
-    });
-  }
+  print(data);
+  setState(() {
+    _unreadCount = data.length;
+  });
+}
 
   // Listen realtime
-  void _listenForNewMessages() {
-    final userId = supabase.auth.currentUser!.id;
-
-    supabase
-        .channel('public:messages')
-        .onPostgresChanges(
-          event: PostgresChangeEvent.insert,
-          schema: 'public',
-          table: 'messages',
-          callback: (payload) {
-            if (payload.newRecord['receiver_id'] == userId) {
-              setState(() {
-                _unreadCount++;
-              });
-            }
-          },
-        )
-        .subscribe();
-  }
+void _listenForNewMessages() {
+  supabase
+      .channel('messages-channel')
+      .onPostgresChanges(
+        event: PostgresChangeEvent.insert,
+        schema: 'public',
+        table: 'messages',
+        callback: (payload) {
+          _getUnreadMessages(); // recompute instead of ++
+        },
+      )
+      .subscribe();
+}
 
   @override
   Widget build(BuildContext context) {

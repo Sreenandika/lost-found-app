@@ -62,6 +62,8 @@ class _ChatPageState extends State<ChatPage> {
 
   Future sendMessage() async {
     if (controller.text.trim().isEmpty) return;
+    print(currentUser);
+    print(otherUser);
 
     await supabase.from('messages').insert({
       'item_id': widget.item['id'],

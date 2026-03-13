@@ -173,7 +173,7 @@ class _ReportPageState extends State<ReportPage> {
               const SizedBox(height: 16),
               
               DropdownButtonFormField<String>(
-                value: _category,
+                initialValue: _category,
                 decoration: _inputDecoration("Category", LineIcons.list),
                 items: ['Electronics', 'Wallets', 'Keys', 'Pets', 'Documents']
                     .map((l) => DropdownMenuItem(value: l, child: Text(l))).toList(),
