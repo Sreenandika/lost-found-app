@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:line_icons/line_icons.dart';
 
 class ChatPage extends StatefulWidget {
   final Map<String, dynamic> item;
@@ -104,19 +105,21 @@ class _ChatPageState extends State<ChatPage> {
                       : Alignment.centerLeft,
 
                   child: Container(
-                    margin: const EdgeInsets.symmetric(vertical: 5),
-
-                    padding: const EdgeInsets.all(12),
-
+                    margin: const EdgeInsets.symmetric(vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                     decoration: BoxDecoration(
-                      color: isMe ? Colors.black : Colors.grey[300],
-                      borderRadius: BorderRadius.circular(10),
+                      color: isMe ? const Color(0xFF006C4C) : Colors.grey[200],
+                      borderRadius: BorderRadius.only(
+                        topLeft: const Radius.circular(16),
+                        topRight: const Radius.circular(16),
+                        bottomLeft: Radius.circular(isMe ? 16 : 0),
+                        bottomRight: Radius.circular(isMe ? 0 : 16),
+                      ),
                     ),
-
                     child: Text(
                       msg['message'],
                       style: TextStyle(
-                        color: isMe ? Colors.white : Colors.black,
+                        color: isMe ? Colors.white : Colors.black87,
                       ),
                     ),
                   ),
@@ -125,27 +128,40 @@ class _ChatPageState extends State<ChatPage> {
             ),
           ),
 
-          SafeArea(
-            child: Container(
-              padding: const EdgeInsets.all(10),
-
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, -2),
+                )
+              ],
+            ),
+            child: SafeArea(
               child: Row(
                 children: [
                   Expanded(
                     child: TextField(
                       controller: controller,
                       decoration: const InputDecoration(
-                        hintText: "Type message...",
-                        border: OutlineInputBorder(),
+                        hintText: "Type a message...",
+                        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       ),
                     ),
                   ),
-
-                  const SizedBox(width: 8),
-
-                  IconButton(
-                    icon: const Icon(Icons.send),
-                    onPressed: sendMessage,
+                  const SizedBox(width: 12),
+                  Container(
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF006C4C),
+                      shape: BoxShape.circle,
+                    ),
+                    child: IconButton(
+                      icon: const Icon(LineIcons.paperPlane, color: Colors.white),
+                      onPressed: sendMessage,
+                    ),
                   ),
                 ],
               ),

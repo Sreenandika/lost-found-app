@@ -141,8 +141,7 @@ class _ReportPageState extends State<ReportPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text("New Report", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.white, elevation: 0,
+        title: const Text("Create Report"),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
@@ -154,27 +153,36 @@ class _ReportPageState extends State<ReportPage> {
               _buildImagePicker(),
               const SizedBox(height: 24),
 
-              const Text("Report Type", style: TextStyle(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 10),
+              const Text(
+                "What happened?",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 16),
               Row(
                 children: [
-                  _buildChoiceChip('lost', 'I lost it', LineIcons.search),
+                  Expanded(child: _buildChoiceChip('lost', 'I lost it', LineIcons.search)),
                   const SizedBox(width: 12),
-                  _buildChoiceChip('found', 'I found it', LineIcons.handHolding),
+                  Expanded(child: _buildChoiceChip('found', 'I found it', LineIcons.handHolding)),
                 ],
               ),
               const SizedBox(height: 24),
 
               TextFormField(
                 controller: _nameController,
-                decoration: _inputDecoration("Item Name", LineIcons.tag),
+                decoration: const InputDecoration(
+                  hintText: "Item Name",
+                  prefixIcon: Icon(LineIcons.tag),
+                ),
                 validator: (val) => val!.isEmpty ? 'Name is required' : null,
               ),
               const SizedBox(height: 16),
               
               DropdownButtonFormField<String>(
-                initialValue: _category,
-                decoration: _inputDecoration("Category", LineIcons.list),
+                value: _category,
+                decoration: const InputDecoration(
+                  hintText: "Category",
+                  prefixIcon: Icon(LineIcons.list),
+                ),
                 items: ['Electronics', 'Wallets', 'Keys', 'Pets', 'Documents']
                     .map((l) => DropdownMenuItem(value: l, child: Text(l))).toList(),
                 onChanged: (val) => setState(() => _category = val),
@@ -183,7 +191,10 @@ class _ReportPageState extends State<ReportPage> {
 
               TextFormField(
                 controller: _locationController,
-                decoration: _inputDecoration("General Area", LineIcons.mapMarker),
+                decoration: const InputDecoration(
+                  hintText: "General Area",
+                  prefixIcon: Icon(LineIcons.mapMarker),
+                ),
                 validator: (val) => val!.isEmpty ? 'Location is required' : null,
               ),
               
@@ -199,8 +210,8 @@ class _ReportPageState extends State<ReportPage> {
                 Container(
                   height: 250,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
-                    border: Border.all(color: Colors.black, width: 1.5),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.grey[200]!, width: 1),
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(13),
@@ -249,23 +260,30 @@ class _ReportPageState extends State<ReportPage> {
 
                 TextFormField(
                   controller: _collectionNotesController,
-                  decoration: _inputDecoration("Specific meeting point (e.g. Lab)", LineIcons.building),
+                  decoration: const InputDecoration(
+                    hintText: "Specific meeting point (e.g. Lab)",
+                    prefixIcon: Icon(LineIcons.building),
+                  ),
                 ),
               ],
 
               const SizedBox(height: 32),
 
               SizedBox(
-                width: double.infinity, height: 55,
+                width: double.infinity,
+                height: 55,
                 child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
                   onPressed: _isSaving ? null : _submitReport,
                   child: _isSaving 
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text("Submit Report", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                      )
+                    : const Text(
+                        "Submit Report",
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
                 ),
               ),
               const SizedBox(height: 40),
@@ -282,18 +300,37 @@ class _ReportPageState extends State<ReportPage> {
     return GestureDetector(
       onTap: _pickImage,
       child: Container(
-        height: 180, width: double.infinity,
+        height: 200,
+        width: double.infinity,
         decoration: BoxDecoration(
-          color: Colors.grey[100], borderRadius: BorderRadius.circular(15),
-          border: Border.all(color: Colors.black, width: 1.5),
+          color: Colors.grey[100],
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.grey[200]!, width: 1),
         ),
         child: _imageFile != null
-            ? ClipRRect(borderRadius: BorderRadius.circular(13), child: Image.file(_imageFile!, fit: BoxFit.cover))
-            : const Column(
+            ? ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: Image.file(_imageFile!, fit: BoxFit.cover),
+              )
+            : Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(LineIcons.camera, size: 40, color: Colors.black),
-                  Text("Add Item Photo", style: TextStyle(fontWeight: FontWeight.bold)),
+                  Icon(LineIcons.camera, size: 48, color: Theme.of(context).primaryColor),
+                  const SizedBox(height: 12),
+                  Text(
+                    "Add Item Photo",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey[700],
+                    ),
+                  ),
+                  Text(
+                    "Helps in faster identification",
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[500],
+                    ),
+                  ),
                 ],
               ),
       ),
@@ -312,15 +349,31 @@ class _ReportPageState extends State<ReportPage> {
 
   Widget _buildChoiceChip(String value, String label, IconData icon) {
     bool isSelected = _reportType == value;
+    final primaryColor = Theme.of(context).primaryColor;
+    
     return ChoiceChip(
-      avatar: Icon(icon, color: isSelected ? Colors.white : Colors.black, size: 18),
+      avatar: Icon(
+        icon,
+        color: isSelected ? Colors.white : Colors.grey[600],
+        size: 18,
+      ),
       label: Text(label),
       selected: isSelected,
-      onSelected: (bool selected) { if (selected) setState(() => _reportType = value); },
-      selectedColor: Colors.black,
+      onSelected: (bool selected) {
+        if (selected) setState(() => _reportType = value);
+      },
+      selectedColor: primaryColor,
       backgroundColor: Colors.white,
-      labelStyle: TextStyle(color: isSelected ? Colors.white : Colors.black, fontWeight: FontWeight.bold),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: const BorderSide(color: Colors.black)),
+      side: BorderSide(
+        color: isSelected ? primaryColor : Colors.grey[300]!,
+        width: 1,
+      ),
+      labelStyle: TextStyle(
+        color: isSelected ? Colors.white : Colors.grey[700],
+        fontWeight: FontWeight.bold,
+      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      showCheckmark: false,
     );
   }
 

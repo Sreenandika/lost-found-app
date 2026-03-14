@@ -114,9 +114,6 @@ class _AccountPageState extends State<AccountPage> {
 
       appBar: AppBar(
         title: const Text('Profile'),
-        elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
       ),
 
       body: _loading
@@ -129,14 +126,12 @@ class _AccountPageState extends State<AccountPage> {
 
                 children: [
                   const Text(
-                    "Profile Settings",
+                    "Settings",
                     style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                   ),
-
                   const SizedBox(height: 8),
-
                   Text(
-                    "Manage your public information and account.",
+                    "Manage your public profile and preferences.",
                     style: TextStyle(color: Colors.grey[600]),
                   ),
 
@@ -150,14 +145,18 @@ class _AccountPageState extends State<AccountPage> {
 
                   TextFormField(
                     controller: _usernameController,
-                    decoration: _inputDecoration("User Name", LineIcons.user),
+                    decoration: const InputDecoration(
+                      hintText: "Full Name",
+                      prefixIcon: Icon(LineIcons.user),
+                    ),
                   ),
-
                   const SizedBox(height: 20),
-
                   TextFormField(
                     controller: _websiteController,
-                    decoration: _inputDecoration("Website", LineIcons.globe),
+                    decoration: const InputDecoration(
+                      hintText: "Website or Social Link",
+                      prefixIcon: Icon(LineIcons.globe),
+                    ),
                   ),
 
                   const SizedBox(height: 32),
@@ -165,25 +164,11 @@ class _AccountPageState extends State<AccountPage> {
                   SizedBox(
                     width: double.infinity,
                     height: 55,
-
                     child: ElevatedButton(
-                      onPressed: _loading ? null : _updateProfile,
-
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-
+                      onPressed: _loading ? null : _onUpdatePressed,
                       child: Text(
-                        _loading ? 'Saving Changes...' : 'Update Profile',
-
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        _loading ? 'Saving...' : 'Save Changes',
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ),
@@ -201,18 +186,27 @@ class _AccountPageState extends State<AccountPage> {
 
                   const SizedBox(height: 10),
 
-                  ListTile(
-                    leading: const Icon(LineIcons.alternateComment),
-                    title: const Text("View Conversations"),
-                    subtitle: const Text("See messages from users"),
-                    trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const ChatListPage()),
-                      );
-                    },
+                  Card(
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      leading: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).primaryColor.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(LineIcons.alternateComment, color: Theme.of(context).primaryColor),
+                      ),
+                      title: const Text("Conversations", style: TextStyle(fontWeight: FontWeight.bold)),
+                      subtitle: const Text("Manage your messages"),
+                      trailing: const Icon(LineIcons.angleRight, size: 16),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const ChatListPage()),
+                        );
+                      },
+                    ),
                   ),
 
                   const SizedBox(height: 30),
@@ -244,23 +238,7 @@ class _AccountPageState extends State<AccountPage> {
     );
   }
 
-  InputDecoration _inputDecoration(String label, IconData icon) {
-    return InputDecoration(
-      labelText: label,
-      prefixIcon: Icon(icon, color: Colors.black54),
-      labelStyle: const TextStyle(color: Colors.black54),
-
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: Colors.grey[300]!),
-      ),
-
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Colors.black, width: 2),
-      ),
-    );
+  void _onUpdatePressed() {
+    _updateProfile();
   }
 }

@@ -49,10 +49,7 @@ class ItemDetailsPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(item['name'] ?? 'Item Details'),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        elevation: 0,
+        title: const Text('Item Details'),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -100,13 +97,13 @@ class ItemDetailsPage extends StatelessWidget {
                           vertical: 6,
                         ),
                         decoration: BoxDecoration(
-                          color: isLost ? Colors.red : Colors.green,
+                          color: (isLost ? Colors.orange : Colors.blue).withOpacity(0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
                           isLost ? "LOST" : "FOUND",
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: isLost ? Colors.orange[800] : Colors.blue[800],
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -124,7 +121,7 @@ class ItemDetailsPage extends StatelessWidget {
 
                   // CORE INFO
                   _buildInfoRow(LineIcons.tag, "Category", item['category']),
-                  const SizedBox(height: 15),
+                  const SizedBox(height: 20),
                   _buildInfoRow(
                     LineIcons.mapMarker,
                     "General Location",
@@ -133,7 +130,7 @@ class ItemDetailsPage extends StatelessWidget {
 
                   // COLLECTION DETAILS (Only for Found items)
                   if (!isLost) ...[
-                    const SizedBox(height: 15),
+                    const SizedBox(height: 20),
                     _buildInfoRow(
                       LineIcons.calendar,
                       "Collection Time",
@@ -141,14 +138,13 @@ class ItemDetailsPage extends StatelessWidget {
                           ? DateFormat('MMM dd, hh:mm a').format(collectionTime)
                           : 'Not specified',
                     ),
-                    const SizedBox(height: 15),
+                    const SizedBox(height: 20),
                     _buildInfoRow(
                       LineIcons.building,
                       "Meeting Spot",
                       item['collection_notes'],
                     ),
-
-                    const SizedBox(height: 25),
+                    const SizedBox(height: 32),
                     const Text(
                       "Meeting Location Pin",
                       style: TextStyle(
@@ -160,12 +156,12 @@ class ItemDetailsPage extends StatelessWidget {
 
                     // MAP PREVIEW
                     if (collectionLatLng != null)
-                      Container(
-                        height: 200,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15),
-                          border: Border.all(color: Colors.black, width: 1.5),
-                        ),
+                    Container(
+                      height: 200,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.grey[200]!, width: 1),
+                      ),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(13),
                           child: FlutterMap(
@@ -226,19 +222,12 @@ class ItemDetailsPage extends StatelessWidget {
                     ),
                   ),
 
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 48),
 
-                  // ACTION BUTTON
                   SizedBox(
                     width: double.infinity,
                     height: 55,
                     child: ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
                       onPressed: () {
                         Navigator.push(
                           context,
@@ -247,11 +236,10 @@ class ItemDetailsPage extends StatelessWidget {
                           ),
                         );
                       },
-                      icon: const Icon(LineIcons.envelope, color: Colors.white),
+                      icon: const Icon(LineIcons.paperPlane, color: Colors.white),
                       label: const Text(
                         "Contact Reporter",
                         style: TextStyle(
-                          color: Colors.white,
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
@@ -270,24 +258,35 @@ class ItemDetailsPage extends StatelessWidget {
   Widget _buildInfoRow(IconData icon, String label, String? value) {
     return Row(
       children: [
-        Icon(icon, color: Colors.black, size: 24),
-        const SizedBox(width: 15),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              label,
-              style: const TextStyle(
-                color: Colors.grey,
-                fontSize: 11,
-                fontWeight: FontWeight.bold,
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: Colors.grey[100],
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(icon, color: const Color(0xFF006C4C), size: 24),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label.toUpperCase(),
+                style: TextStyle(
+                  color: Colors.grey[500],
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.1,
+                ),
               ),
-            ),
-            Text(
-              value ?? 'Not specified',
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-            ),
-          ],
+              const SizedBox(height: 2),
+              Text(
+                value ?? 'Not specified',
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
         ),
       ],
     );

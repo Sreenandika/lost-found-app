@@ -97,29 +97,16 @@ class _MyReportsPageState extends State<MyReportsPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text(
-          "My Reports",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 24,
-            color: Colors.black,
-          ),
-        ),
-        centerTitle: false,
-        backgroundColor: Colors.white,
-        elevation: 0,
+        title: const Text("My Reports"),
       ),
       body: Column(
         children: [
           // Filter Bar
           Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 12.0,
-            ),
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
             child: Row(
               children: [
-                _buildFilterChip('all', 'All Items'),
+                _buildFilterChip('all', 'All'),
                 const SizedBox(width: 8),
                 _buildFilterChip('lost', 'Lost'),
                 const SizedBox(width: 8),
@@ -155,24 +142,30 @@ class _MyReportsPageState extends State<MyReportsPage> {
 
   Widget _buildFilterChip(String value, String label) {
     bool isSelected = _filter == value;
-    return ChoiceChip(
-      label: Text(label),
-      selected: isSelected,
-      onSelected: (selected) {
-        if (selected) {
-          setState(() => _filter = value);
-          _fetchMyReports();
-        }
-      },
-      selectedColor: Colors.black,
-      backgroundColor: Colors.white,
-      labelStyle: TextStyle(
-        color: isSelected ? Colors.white : Colors.black,
-        fontWeight: FontWeight.bold,
-      ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-        side: const BorderSide(color: Colors.black, width: 1.5),
+    final primaryColor = Theme.of(context).primaryColor;
+
+    return Expanded(
+      child: ChoiceChip(
+        label: Text(label),
+        selected: isSelected,
+        onSelected: (selected) {
+          if (selected) {
+            setState(() => _filter = value);
+            _fetchMyReports();
+          }
+        },
+        selectedColor: primaryColor,
+        backgroundColor: Colors.white,
+        side: BorderSide(
+          color: isSelected ? primaryColor : Colors.grey[300]!,
+          width: 1,
+        ),
+        labelStyle: TextStyle(
+          color: isSelected ? Colors.white : Colors.grey[700],
+          fontWeight: FontWeight.bold,
+        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        showCheckmark: false,
       ),
     );
   }
@@ -180,16 +173,8 @@ class _MyReportsPageState extends State<MyReportsPage> {
   Widget _buildReportCard(Map<String, dynamic> item) {
     final bool isLost = item['type'] == 'lost';
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Colors.black,
-          width: 1.5,
-        ), // High contrast border
-      ),
+    return Card(
+      margin: const EdgeInsets.only(bottom: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -233,20 +218,17 @@ class _MyReportsPageState extends State<MyReportsPage> {
                     ),
                     // Status Badge
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
-                        color: isLost ? Colors.red : Colors.green,
+                        color: (isLost ? Colors.orange : Colors.blue).withOpacity(0.1),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
                         isLost ? "LOST" : "FOUND",
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: isLost ? Colors.orange[800] : Colors.blue[800],
                           fontWeight: FontWeight.bold,
-                          fontSize: 11,
+                          fontSize: 10,
                         ),
                       ),
                     ),

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:line_icons/line_icons.dart';
 import 'package:lost_found_app/main.dart';
 import 'package:lost_found_app/pages/landing_page.dart';
 
@@ -76,54 +77,81 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Sign In')),
-      body: ListView(
-        padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
-        children: [
-          Text(
-            _otpSent
-                ? 'Enter the 6-digit code sent to ${_emailController.text}'
-                : 'Enter your email to receive a login code',
-          ),
-          const SizedBox(height: 18),
-
-          // Email Field (Disabled once OTP is sent)
-          TextFormField(
-            controller: _emailController,
-            enabled: !_otpSent,
-            decoration: const InputDecoration(labelText: 'Email'),
-            keyboardType: TextInputType.emailAddress,
-          ),
-
-          if (_otpSent) ...[
-            const SizedBox(height: 18),
-            // OTP Field (Shows up after email is sent)
-            TextFormField(
-              controller: _otpController,
-              decoration: const InputDecoration(
-                labelText: '6-Digit Code',
-                hintText: '123456',
+      appBar: AppBar(title: const Text('Welcome Back')),
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Icon(LineIcons.userSecret, size: 80, color: Color(0xFF006C4C)),
+              const SizedBox(height: 32),
+              Text(
+                _otpSent
+                    ? 'Verify your identity'
+                    : 'Sign in to Lost&Found',
+                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
               ),
-              keyboardType: TextInputType.number,
-            ),
-          ],
+              const SizedBox(height: 8),
+              Text(
+                _otpSent
+                    ? 'Enter the 6-digit code sent to ${_emailController.text}'
+                    : 'Enter your email to receive a secure login code',
+                style: TextStyle(color: Colors.grey[600]),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 40),
 
-          const SizedBox(height: 18),
-          ElevatedButton(
-            onPressed: _isLoading ? null : (_otpSent ? _verifyOtp : _sendOtp),
-            child: Text(
-              _isLoading
-                  ? 'Processing...'
-                  : (_otpSent ? 'Verify Code' : 'Send Code'),
-            ),
+              TextFormField(
+                controller: _emailController,
+                enabled: !_otpSent,
+                decoration: const InputDecoration(
+                  hintText: 'Email Address',
+                  prefixIcon: Icon(LineIcons.envelope),
+                ),
+                keyboardType: TextInputType.emailAddress,
+              ),
+
+              if (_otpSent) ...[
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _otpController,
+                  decoration: const InputDecoration(
+                    hintText: '6-Digit Code',
+                    prefixIcon: Icon(LineIcons.lock),
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+              ],
+
+              const SizedBox(height: 24),
+              SizedBox(
+                height: 55,
+                child: ElevatedButton(
+                  onPressed: _isLoading ? null : (_otpSent ? _verifyOtp : _sendOtp),
+                  child: _isLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                        )
+                      : Text(
+                          _otpSent ? 'Verify Code' : 'Send Code',
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                ),
+              ),
+
+              if (_otpSent)
+                TextButton(
+                  onPressed: () => setState(() => _otpSent = false),
+                  child: const Text('Change Email'),
+                ),
+            ],
           ),
-
-          if (_otpSent)
-            TextButton(
-              onPressed: () => setState(() => _otpSent = false),
-              child: const Text('Edit Email'),
-            ),
-        ],
+        ),
       ),
     );
   }

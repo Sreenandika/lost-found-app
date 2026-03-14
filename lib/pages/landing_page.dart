@@ -32,39 +32,37 @@ class _Landing_PageState extends State<Landing_Page> {
       body: _pages[_selectedIndex],
 
       bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
+        padding: const EdgeInsets.only(bottom: 12),
+        decoration: BoxDecoration(
           color: Colors.white,
-          boxShadow: [BoxShadow(blurRadius: 20, color: Colors.black12)],
+          boxShadow: [
+            BoxShadow(
+              blurRadius: 20,
+              color: Colors.black.withOpacity(0.05),
+              offset: const Offset(0, -5),
+            )
+          ],
         ),
-
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
             child: GNav(
-              rippleColor: Colors.grey,
-              hoverColor: Colors.grey,
+              rippleColor: Theme.of(context).primaryColor.withOpacity(0.1),
+              hoverColor: Theme.of(context).primaryColor.withOpacity(0.05),
               gap: 8,
-              activeColor: Colors.black,
+              activeColor: Theme.of(context).primaryColor,
               iconSize: 24,
-
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               duration: const Duration(milliseconds: 400),
-
-              tabBackgroundColor: Colors.grey,
-
-              color: Colors.black,
-
+              tabBackgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
+              color: Colors.grey[600]!,
               tabs: const [
                 GButton(icon: LineIcons.search, text: 'Search'),
                 GButton(icon: LineIcons.plus, text: 'Report'),
                 GButton(icon: LineIcons.folderOpen, text: 'Reported'),
                 GButton(icon: LineIcons.userCircle, text: 'Profile'),
               ],
-
               selectedIndex: _selectedIndex,
-
               onTabChange: (index) {
                 setState(() {
                   _selectedIndex = index;

@@ -3,6 +3,7 @@ import 'package:lost_found_app/main.dart';
 import 'package:lost_found_app/pages/item_search_page.dart';
 import 'package:lost_found_app/pages/chat_list_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:line_icons/line_icons.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -103,46 +104,49 @@ void _listenForNewMessages() {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Search Items'),
-
+        title: const Text('Discover'),
         actions: [
-          Stack(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.chat_bubble_outline),
-
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const ChatListPage()),
-                  );
-                },
-              ),
-
-              if (_unreadCount > 0)
-                Positioned(
-                  right: 8,
-                  top: 8,
-
-                  child: Container(
-                    padding: const EdgeInsets.all(5),
-
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-
-                    child: Text(
-                      '$_unreadCount',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
+          Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                IconButton(
+                  icon: const Icon(LineIcons.comment),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const ChatListPage()),
+                    );
+                  },
+                ),
+                if (_unreadCount > 0)
+                  Positioned(
+                    right: 8,
+                    top: 8,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                      ),
+                      constraints: const BoxConstraints(
+                        minWidth: 16,
+                        minHeight: 16,
+                      ),
+                      child: Text(
+                        '$_unreadCount',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
                     ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
@@ -150,23 +154,16 @@ void _listenForNewMessages() {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(12.0),
-
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
             child: TextField(
               controller: _searchController,
               onChanged: (value) => _runFilter(value),
-
               decoration: InputDecoration(
-                labelText: 'Search by item name...',
-                prefixIcon: const Icon(Icons.search),
-
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-
+                hintText: 'Search lost or found items...',
+                prefixIcon: const Icon(LineIcons.search),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
-                        icon: const Icon(Icons.clear),
+                        icon: const Icon(LineIcons.times),
                         onPressed: () {
                           _searchController.clear();
                           _runFilter('');
@@ -181,25 +178,69 @@ void _listenForNewMessages() {
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : _filteredResults.isNotEmpty
-                ? ListView.builder(
+                ? ListView.separated(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
                     itemCount: _filteredResults.length,
+                    separatorBuilder: (context, index) => const SizedBox(height: 12),
                     itemBuilder: (context, index) {
                       final item = _filteredResults[index];
+                      final isLost = item['type'] == 'lost';
 
-                      return ListTile(
-                        leading: const Icon(Icons.inventory_2),
-                        title: Text(item['name'] ?? 'Unknown Item'),
-                        subtitle: Text(item['description'] ?? ''),
-                        trailing: const Icon(Icons.chevron_right),
-
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ItemDetailsPage(item: item),
+                      return Card(
+                        child: ListTile(
+                          contentPadding: const EdgeInsets.all(12),
+                          leading: Container(
+                            width: 50,
+                            height: 50,
+                            decoration: BoxDecoration(
+                              color: (isLost ? Colors.orange : Colors.blue).withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
                             ),
-                          );
-                        },
+                            child: Icon(
+                              isLost ? LineIcons.search : LineIcons.checkCircle,
+                              color: isLost ? Colors.orange : Colors.blue,
+                            ),
+                          ),
+                          title: Text(
+                            item['name'] ?? 'Unknown Item',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(height: 4),
+                              Text(
+                                item['description'] ?? '',
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 4),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: (isLost ? Colors.orange : Colors.blue).withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  isLost ? 'LOST' : 'FOUND',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                    color: isLost ? Colors.orange[800] : Colors.blue[800],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ItemDetailsPage(item: item),
+                              ),
+                            );
+                          },
+                        ),
                       );
                     },
                   )
