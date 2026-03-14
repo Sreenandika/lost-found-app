@@ -5,7 +5,7 @@ import 'package:lost_found_app/pages/login_page.dart';
     
 Future<void> main() async {
   await Supabase.initialize(
-     url: 'https://lost-and-found.jiobase.com',
+    url: 'https://kkpmzruqsvcjxuaksqci.supabase.co',
     anonKey: 'sb_publishable_tJWSVb1QEL0QKplUsVCZyQ_kMdWG1mR',
   );
   runApp(const MyApp());
