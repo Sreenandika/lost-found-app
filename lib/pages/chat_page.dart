@@ -4,8 +4,9 @@ import 'package:line_icons/line_icons.dart';
 
 class ChatPage extends StatefulWidget {
   final Map<String, dynamic> item;
+  final String? receiverId;
 
-  const ChatPage({super.key, required this.item});
+  const ChatPage({super.key, required this.item, this.receiverId});
 
   @override
   State<ChatPage> createState() => _ChatPageState();
@@ -26,7 +27,7 @@ class _ChatPageState extends State<ChatPage> {
   void initState() {
     super.initState();
 
-    otherUser = widget.item['user_id'];
+    otherUser = widget.receiverId ?? widget.item['user_id'];
 
     markMessagesRead();
     subscribeMessages();
@@ -48,7 +49,12 @@ class _ChatPageState extends State<ChatPage> {
         .order('created_at', ascending: true)
         .listen((data) {
           setState(() {
-            messages = data;
+            messages = data.where((m) {
+              final senderId = m['sender_id'];
+              final receiverId = m['receiver_id'];
+              return (senderId == currentUser && receiverId == otherUser) ||
+                     (senderId == otherUser && receiverId == currentUser);
+            }).toList();
           });
 
           Future.delayed(const Duration(milliseconds: 200), () {

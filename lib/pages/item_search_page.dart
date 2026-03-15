@@ -3,6 +3,7 @@ import 'package:line_icons/line_icons.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'chat_page.dart';
 
 class ItemDetailsPage extends StatelessWidget {
@@ -38,6 +39,8 @@ class ItemDetailsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isLost = item['type'] == 'lost';
+    final String? currentUserId = Supabase.instance.client.auth.currentUser?.id;
+    final bool isOwner = item['user_id'] == currentUserId;
 
     // Use 'location_text' from our SQL view
     final LatLng? collectionLatLng = _parseLocation(item['location_text']);
@@ -222,30 +225,34 @@ class ItemDetailsPage extends StatelessWidget {
                     ),
                   ),
 
-                  const SizedBox(height: 48),
-
-                  SizedBox(
-                    width: double.infinity,
-                    height: 55,
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ChatPage(item: item),
+                  if (!isOwner) ...[
+                    const SizedBox(height: 48),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 55,
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ChatPage(
+                                item: item,
+                                receiverId: item['user_id'],
+                              ),
+                            ),
+                          );
+                        },
+                        icon: const Icon(LineIcons.paperPlane, color: Colors.white),
+                        label: const Text(
+                          "Contact Reporter",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
                           ),
-                        );
-                      },
-                      icon: const Icon(LineIcons.paperPlane, color: Colors.white),
-                      label: const Text(
-                        "Contact Reporter",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
-                  ),
+                  ],
                 ],
               ),
             ),

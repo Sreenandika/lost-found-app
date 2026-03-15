@@ -37,15 +37,19 @@ class _ChatListPageState extends State<ChatListPage> {
     Map unread = {};
 
     for (var msg in messages) {
-
       final itemId = msg['item_id'];
+      final otherId = msg['sender_id'] == userId ? msg['receiver_id'] : msg['sender_id'];
+      final chatKey = "${itemId}_$otherId";
 
-      if (!latestChats.containsKey(itemId)) {
-        latestChats[itemId] = msg;
+      if (!latestChats.containsKey(chatKey)) {
+        latestChats[chatKey] = {
+          'message': msg,
+          'other_user_id': otherId,
+        };
       }
 
       if (msg['receiver_id'] == userId && msg['is_read'] == false) {
-        unread[itemId] = (unread[itemId] ?? 0) + 1;
+        unread[chatKey] = (unread[chatKey] ?? 0) + 1;
       }
     }
 
@@ -65,10 +69,13 @@ class _ChatListPageState extends State<ChatListPage> {
       body: ListView.builder(
         itemCount: chats.length,
         itemBuilder: (context, index) {
-          final chat = chats[index];
+          final chatData = chats[index];
+          final chat = chatData['message'];
+          final otherUserId = chatData['other_user_id'];
           final item = chat['items'];
           final itemId = chat['item_id'];
-          final unread = unreadCounts[itemId] ?? 0;
+          final chatKey = "${itemId}_$otherUserId";
+          final unread = unreadCounts[chatKey] ?? 0;
 
           return Card(
             margin: const EdgeInsets.only(bottom: 12),
@@ -113,7 +120,7 @@ class _ChatListPageState extends State<ChatListPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => ChatPage(item: item),
+                    builder: (_) => ChatPage(item: item, receiverId: otherUserId),
                   ),
                 ).then((_) {
                   loadChats();
